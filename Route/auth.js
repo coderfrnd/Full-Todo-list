@@ -2,15 +2,16 @@ import express from "express";
 import bcryptjs from 'bcryptjs'
 import user from '../Models/User.js'
 import  jwt  from "jsonwebtoken";
+import cerror from "../Utils/error.js";
 // import register from '../Controller/auth.js'
 // import {register} from '../Controller/auth.js'
 // const app = express()
 
 const router= express.Router()
 
-router.get('/register',async(req,res)=>{
+router.get('/register',async(req,res,next)=>{
         if(!req.body.name || !req.body.email || !req.body.password ){
-            return res.json('required name email and password')
+            return  next(cerror({status:400,message:"name password email is required "}));
         }
         try{
                const salt = await bcryptjs.genSalt(10);
@@ -29,27 +30,27 @@ router.get('/register',async(req,res)=>{
         }
         catch(err){
             console.log(err)
-            return res.json('server error');
+            return next(err)
         }
          
     }
 
 ) 
-router.get('/login',async(req,res)=>{
+router.get('/login',async(req,res,next)=>{
    if(!req.body.email || !req.body.password){
-    return res.json("form fill bro")
+    return  next(cerror({status:400,message:" password email is required "}));
    }
    try{
            const usery = await user.findOne({email:req.body.email}).select(
           'name email password'       
            )
            if(!usery){
-            return res.status(404).json("no user find")
+            return  next(cerror({status:404,message:"no user found"}));
            }
            const ispassword = await bcryptjs.compare(req.body.password,usery.password)
 
                if(!ispassword){
-                return res.json('password incorrect')
+                return  next(cerror({status:400,message:"password is wrong"}));
                }
                const payload = { // check krnee ke liyee aage 
                id:usery._id,
@@ -64,7 +65,8 @@ router.get('/login',async(req,res)=>{
 
    }
    catch(err){
-    console.log(err)
+    // console.log(err) 
+    return next(err)
    }
 })
 

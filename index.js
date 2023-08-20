@@ -22,6 +22,12 @@ app.use('/api',tasky)
 // app.use('/api',auth)
 // app.use('/api',User)
 
+app.use((req,res,err)=>{
+    const status = err.statusCode || 500;
+    const message= err.message || 'Internal problem';
+    return res.status(status).json({message,stack:err.stack});
+})
+
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.DB_CONNECTION_STRING);
