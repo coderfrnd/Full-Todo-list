@@ -3,9 +3,7 @@ import bcryptjs from 'bcryptjs'
 import user from '../Models/User.js'
 import  jwt  from "jsonwebtoken";
 import cerror from "../Utils/error.js";
-// import register from '../Controller/auth.js'
-// import {register} from '../Controller/auth.js'
-// const app = express()
+
 
 const router= express.Router()
 
@@ -57,7 +55,7 @@ router.get('/login',async(req,res,next)=>{
                name:usery.name
                }
                const token = jwt.sign(payload,process.env.JWT_SCERET,{
-                expiresIn:'10d'
+                expiresIn:'1d'
                })
                     return res.cookie('access_token',token,{
                         httpOnly:true
@@ -71,7 +69,25 @@ router.get('/login',async(req,res,next)=>{
 })
 
 
-router.get('/hhp',(req,res)=>{
-    return res.json("hhp")
+router.get('/logout',async(req,res)=>{
+    res.clearCookie('access_token');
+    return res.status(200).json({message:'Logout-successfully'})
+
 })
+
+router.get('/isLoggedin',async(req,res)=>{
+  const token = req.cookies.access_token;
+  if(!token){
+    return res.json(false);
+  }
+  return jwt.verify(token,process.env.JWT_SCERET,(err)=>{
+    if(err){
+        return res.json(false)
+    }
+    return res.json(true)
+  })
+
+})
+
+
 export default router; 
