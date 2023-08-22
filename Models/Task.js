@@ -3,7 +3,6 @@ const {Schema} = mongoose;
 const taskschema = new Schema({
    
     title:{
-        // name:String
         type:String,
         required:true,
     },
